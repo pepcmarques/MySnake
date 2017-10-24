@@ -37,9 +37,9 @@ ERASE = " "
 global theEnd
 theEnd = False
 
-X1 = 1
-Y1 = 1
-X2 = 78
+X1 = 0
+Y1 = 0
+X2 = 80
 Y2 = 23
 
 startX = 10
@@ -48,6 +48,13 @@ startY = 10
 def print_there(x, y, text):
      sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
      sys.stdout.flush()
+
+screen.addstr(Y1, X1, (X2-X1)*"-")
+for y in range(Y1+1, Y2):
+    screen.addstr(y, X1, "|")
+    screen.addstr(y, X2-1, "|")
+screen.addstr(Y2, X1, (X2-X1)*"-")
+
 
 def endGame():
     global theEnd
@@ -124,8 +131,8 @@ class Snake(object):
 
     def move(self):
 
-        print_there(0, 0, 80*ERASE)
-        print_there(0, 0, "Coordinate: %d   Body: %d" %(len(self.moveHere), len(self.body)))
+        print_there(0, 25, 80*ERASE)
+        print_there(0, 25, "Coordinate: %d   Body: %d" %(len(self.moveHere), len(self.body)))
 
         last = self.body[-1]
 
@@ -152,6 +159,12 @@ class Snake(object):
            
             print_there(s.x, s.y, s.part)
 
+    def hitTheWall(self):
+        head = self.body[0]
+        if ((head.x == X1+1) or (head.x == X2) or (head.y == Y1+1) or (head.y == Y2)):
+           sleep(1)
+           return True
+        return False
 
     def process_event(self, e):
         firstPart = self.body[0]
@@ -170,6 +183,7 @@ def eatFood(s, f):
         
 
 def realtime(theEnd=False):
+
     snake  = Snake()
     food   = Food()
 
@@ -185,23 +199,31 @@ def realtime(theEnd=False):
           if eatFood(snake,food):
              snake.grow()
 
+          if snake.hitTheWall():
+             theEnd = True
+
           counter += 1
           if counter > 30:
              counter = 0
              food.put(snake)               
 
           char = screen.getch()
-          if (char == ord('q')) or (char == ESC):
+          if (char == ord('q')):
              theEnd = True
           elif char in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
              snake.process_event(char)
 
-          sleep(.05)
+          sleep(.1)
 
     # shut down cleanly
-    curses.nocbreak(); screen.keypad(0); curses.echo()
+    curses.nocbreak()
+    screen.keypad(0)
+    curses.echo()
     curses.endwin()
- 
+
+
+
+
 if __name__ == "__main__":
    os.system('clear')
    realtime()
