@@ -9,54 +9,9 @@ from random import randint
 import os
 import curses
 
-# get the curses screen window
-screen = curses.initscr()
-#
-# turn off input echoing
-curses.noecho()
-#
-# respond to keys immediately (don't wait for enter)
-screen.nodelay(True)
-curses.cbreak()
-#
-# map arrow keys to special values
-screen.keypad(True)
-#
-
-RIGHT = curses.KEY_RIGHT
-LEFT  = curses.KEY_LEFT
-UP    = curses.KEY_UP
-DOWN  = curses.KEY_DOWN
-ESC   = curses.KEY_EXIT
-
-HEAD  = "S"
-BODY  = "s"
-FOOD  = "*"
-ERASE = " "
-
-FOOD_LIMIT = 4
-FOOD_TIME  = 6
-
-global theEnd
-theEnd = False
-
-X1 = 0
-Y1 = 0
-X2 = 80
-Y2 = 23
-
-startX = 10
-startY = 10
-
 def print_there(x, y, text):
      sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
      sys.stdout.flush()
-
-screen.addstr(Y1, X1, (X2-X1)*"-")
-for y in range(Y1+1, Y2):
-    screen.addstr(y, X1, "|")
-    screen.addstr(y, X2-1, "|")
-screen.addstr(Y2, X1, (X2-X1)*"-")
 
 
 def endGame():
@@ -65,7 +20,6 @@ def endGame():
 
 
 class Position(object):
-
     def __init__(self, x, y):
         super(Position, self).__init__()
         self.x = x
@@ -73,26 +27,22 @@ class Position(object):
 
 
 class PositionSnake(Position):
-
     def __init__(self, x, y, direction):
         super(PositionSnake, self).__init__(x, y)
         self.direction = direction
 
 
 class PositionFood(Position):
-
     def __init__(self, x, y, ts):
         super(PositionFood, self).__init__(x, y)
         self.timeStamp = ts
 
 
 class Food():
-
     def __init__(self):
         self.food = []
 
     def put(self, snake):
-
         flag = False
         while not flag:
             x = randint(X1+1, X2-1)
@@ -107,7 +57,6 @@ class Food():
         print_there(x, y, FOOD)
 
     def remove(self):
-
         l = []
         for f in self.food:
             t1 = time.time()
@@ -119,7 +68,6 @@ class Food():
 
 
 class snakePart():
-
     def __init__(self, x, y, direction, part):
         self.x = x
         self.y = y
@@ -128,7 +76,6 @@ class snakePart():
 
 
 class Snake(object):
-
     def __init__(self):
         self.body = []
         self.moveHere = []
@@ -152,16 +99,9 @@ class Snake(object):
         print_there(x, y, BODY)
 
     def move(self):
-
-        print_there(0, 25, 80*ERASE)
-        print_there(0, 25, "Coordinate: %d   Body: %d" %(len(self.moveHere), len(self.body)))
-
         last = self.body[-1]
-
         for s in self.body:
-
             print_there(s.x, s.y, ERASE)
-
             p = 0
             while p < len(self.moveHere):
                 if (s.x == self.moveHere[p].x) and (s.y == self.moveHere[p].y):
@@ -169,7 +109,6 @@ class Snake(object):
                    if (last.x == s.x) and (last.y == s.y):
                       self.moveHere.pop(p)
                 p += 1
-
             if s.direction == RIGHT:
                s.x = s.x + 1
             elif s.direction == DOWN:
@@ -178,7 +117,6 @@ class Snake(object):
                s.x = s.x - 1
             elif s.direction == UP:
                s.y = s.y - 1
-           
             print_there(s.x, s.y, s.part)
 
     def hitTheWall(self):
@@ -205,16 +143,18 @@ def eatFood(s, f):
         
 
 def realtime(theEnd=False):
-
     snake  = Snake()
     food   = Food()
 
-    snake.grow()
-    snake.grow()
-
+    SNAKE_SPEED = 30.0
     counter = 0
 
+    level = 1
+
     while not theEnd:
+
+          print_there(0, 25, 80*ERASE)
+          print_there(0, 25, "Level: %d      Points: %d" %(level, len(snake.body)-1))
 
           snake.move()
 
@@ -238,7 +178,23 @@ def realtime(theEnd=False):
           elif char in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
              snake.process_event(char)
 
-          sleep(.1)
+          #sleep(0.1)
+          sleep(FPS / (SNAKE_SPEED * 10))
+
+          if (len(snake.body) > END_LEVEL):
+             msg = "N  E  W     L  E  V  E  L"
+             print_there(int((X2 - X1)/ 2) - int(len(msg))/2,int((Y2 - Y1)/2), msg)
+             sleep(3) 
+             print_there(int((X2 - X1)/ 2) - int(len(msg))/2,int((Y2 - Y1)/2), int(len(msg))*ERASE)
+             #
+             for s in snake.body:
+                 print_there(s.x, s.y, ERASE)
+             # 
+             s = snake.body.pop(0)
+             snake.body = []
+             snake.body.append(s)
+             food.food  = []
+             SNAKE_SPEED = SNAKE_SPEED + RATE
 
     # shut down cleanly
     curses.nocbreak()
@@ -247,8 +203,61 @@ def realtime(theEnd=False):
     curses.endwin()
 
 
+#####################################
+# BEGIN                             #
+#####################################
 
+# get the curses screen window
+screen = curses.initscr()
+#
+# turn off input echoing
+curses.noecho()
+#
+# respond to keys immediately (don't wait for enter)
+screen.nodelay(True)
+curses.cbreak()
+#
+# map arrow keys to special values
+screen.keypad(True)
+#
+#
+RIGHT = curses.KEY_RIGHT
+LEFT  = curses.KEY_LEFT
+UP    = curses.KEY_UP
+DOWN  = curses.KEY_DOWN
+ESC   = curses.KEY_EXIT
+#
+HEAD  = "S"
+BODY  = "s"
+FOOD  = "*"
+ERASE = " "
+#
+FOOD_LIMIT = 4
+FOOD_TIME  = 6
+END_LEVEL  = 30
+#
+RATE  = 5.0
+FPS   = 30.0
+#
+global theEnd
+theEnd = False
+#
+X1 = 0
+Y1 = 0
+X2 = 80
+Y2 = 23
+#
+startX = 10
+startY = 10
+#
+# DRAW FIELD
+#
+screen.addstr(Y1, X1, (X2-X1)*"-")
+for y in range(Y1+1, Y2):
+    screen.addstr(y, X1, "|")
+    screen.addstr(y, X2-1, "|")
+screen.addstr(Y2, X1, (X2-X1)*"-")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
    os.system('clear')
    realtime()
