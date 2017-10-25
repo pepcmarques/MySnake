@@ -34,6 +34,9 @@ BODY  = "s"
 FOOD  = "*"
 ERASE = " "
 
+FOOD_LIMIT = 4
+FOOD_TIME  = 6
+
 global theEnd
 theEnd = False
 
@@ -76,6 +79,13 @@ class PositionSnake(Position):
         self.direction = direction
 
 
+class PositionFood(Position):
+
+    def __init__(self, x, y, ts):
+        super(PositionFood, self).__init__(x, y)
+        self.timeStamp = ts
+
+
 class Food():
 
     def __init__(self):
@@ -86,15 +96,27 @@ class Food():
         flag = False
         while not flag:
             x = randint(X1+1, X2-1)
-            y = randint(Y1+1, Y2-1)
+            y = randint(Y1+2, Y2-1)
             same = False
             for s in snake.body:
                 if (s.x == x) and (s.y == y):
                    same = True 
             if not same:
                flag = True
-        self.food.append(Position(x, y))
+        self.food.append(PositionFood(x, y, time.time()))
         print_there(x, y, FOOD)
+
+    def remove(self):
+
+        l = []
+        for f in self.food:
+            t1 = time.time()
+            if ((t1 - f.timeStamp) < FOOD_TIME):
+               l.append(f)
+            else:
+               print_there(f.x, f.y, ERASE)
+        self.food = l
+
 
 class snakePart():
 
@@ -161,7 +183,7 @@ class Snake(object):
 
     def hitTheWall(self):
         head = self.body[0]
-        if ((head.x == X1+1) or (head.x == X2) or (head.y == Y1+1) or (head.y == Y2)):
+        if ((head.x == X1+1) or (head.x == X2) or (head.y == Y1+1) or (head.y == Y2+1)):
            sleep(1)
            return True
         return False
@@ -196,6 +218,8 @@ def realtime(theEnd=False):
 
           snake.move()
 
+          food.remove()
+
           if eatFood(snake,food):
              snake.grow()
 
@@ -205,7 +229,8 @@ def realtime(theEnd=False):
           counter += 1
           if counter > 30:
              counter = 0
-             food.put(snake)               
+             if (len(food.food) < FOOD_LIMIT):
+                food.put(snake)               
 
           char = screen.getch()
           if (char == ord('q')):
