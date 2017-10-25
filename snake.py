@@ -195,6 +195,7 @@ def realtime(theEnd=False):
              snake.body.append(s)
              food.food  = []
              SNAKE_SPEED = SNAKE_SPEED + RATE
+             level += 1
 
     # shut down cleanly
     curses.nocbreak()
@@ -233,7 +234,7 @@ FOOD  = "*"
 ERASE = " "
 #
 FOOD_LIMIT = 4
-FOOD_TIME  = 6
+FOOD_TIME  = 9
 END_LEVEL  = 30
 #
 RATE  = 5.0
