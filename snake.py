@@ -6,7 +6,7 @@ import sys
 import time
 from time import sleep
 from random import randint
-from settings import RIGHT, LEFT, UP, DOWN, HEAD, BODY, FOOD, ERASE, FOOD_LIMIT, FOOD_TIME, END_LEVEL, RATE, FPS, SNAKE_SPEED, THE_END, X1, Y1, X2, Y2, startX, startY 
+from settings import RIGHT, LEFT, UP, DOWN, HEAD, BODY, INITIAL_SIZE, FOOD, ERASE, FOOD_LIMIT, FOOD_TIME, END_LEVEL, RATE, FPS, SNAKE_SPEED, THE_END, X1, Y1, X2, Y2, startX, startY 
 
 
 def print_there(x, y, text):
@@ -150,7 +150,9 @@ class Snake(object):
         s = self.body.pop(0)
         self.body = []
         self.body.append(s)
-           
+        #
+        for i in range(INITIAL_SIZE-1):
+            self.grow()   
 
 def eatFood(s, f):
     head = s.body[0]
@@ -170,7 +172,7 @@ def realtime(THE_END=False):
     food   = Food()
 
     # for testing
-    for i in range(20):
+    for i in range(INITIAL_SIZE-1):
         snake.grow()
 
     counter = 0

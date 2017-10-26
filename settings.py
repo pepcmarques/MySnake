@@ -9,6 +9,7 @@ HEAD  = "S"
 BODY  = "s"
 FOOD  = "*"
 ERASE = " "
+INITIAL_SIZE = 1   # For testing purpose. You can start each level with a 10 peaces snake for example...
 #
 FOOD_LIMIT = 4
 FOOD_TIME  = 10
