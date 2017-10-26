@@ -45,7 +45,7 @@ class Food():
     def put(self, snake):
         flag = False
         while not flag:
-            x = randint(X1+1, X2-1)
+            x = randint(X1+2, X2-1)
             y = randint(Y1+2, Y2-1)
             same = False
             for s in snake.body:
