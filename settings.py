@@ -11,7 +11,7 @@ FOOD  = "*"
 ERASE = " "
 #
 FOOD_LIMIT = 4
-FOOD_TIME  = 9
+FOOD_TIME  = 10
 END_LEVEL  = 30
 #
 RATE        = 5.0

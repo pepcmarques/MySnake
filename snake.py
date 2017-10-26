@@ -66,6 +66,11 @@ class Food():
                print_there(f.x, f.y, ERASE)
         self.food = l
 
+    def eraseAll(self):
+        for f in self.food:
+            print_there(f.x, f.y, ERASE)
+        # 
+        self.food = []
 
 class snakePart():
     def __init__(self, x, y, direction, part):
@@ -129,6 +134,14 @@ class Snake(object):
     def process_event(self, e):
         firstPart = self.body[0]
         self.moveHere.append(PositionSnake(firstPart.x, firstPart.y, e))
+
+    def eraseAll(self):
+        for s in self.body:
+            print_there(s.x, s.y, ERASE)
+        # 
+        s = self.body.pop(0)
+        self.body = []
+        self.body.append(s)
            
 
 def eatFood(s, f):
@@ -188,13 +201,8 @@ def realtime(THE_END=False):
              sleep(3) 
              print_there(int((X2 - X1)/ 2) - int(len(msg))/2,int((Y2 - Y1)/2), int(len(msg))*ERASE)
              #
-             for s in snake.body:
-                 print_there(s.x, s.y, ERASE)
-             # 
-             s = snake.body.pop(0)
-             snake.body = []
-             snake.body.append(s)
-             food.food  = []
+             snake.eraseAll()
+             food.eraseAll()
              SNAKE_SPEED = SNAKE_SPEED + RATE
              level += 1
 
