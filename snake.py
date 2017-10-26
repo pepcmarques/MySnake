@@ -1,13 +1,13 @@
 #!/bin/env python
 
+import curses
 import os
 import sys
 import time
 from time import sleep
 from random import randint
+from settings import RIGHT, LEFT, UP, DOWN, HEAD, BODY, FOOD, ERASE, FOOD_LIMIT, FOOD_TIME, END_LEVEL, RATE, FPS, SNAKE_SPEED, THE_END, X1, Y1, X2, Y2, startX, startY 
 
-import os
-import curses
 
 def print_there(x, y, text):
      sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
@@ -15,8 +15,8 @@ def print_there(x, y, text):
 
 
 def endGame():
-    global theEnd
-    theEnd = not theEnd
+    global THE_END
+    THE_END = not THE_END
 
 
 class Position(object):
@@ -142,19 +142,20 @@ def eatFood(s, f):
     return False
         
 
-def realtime(theEnd=False):
+def realtime(THE_END=False):
+    global SNAKE_SPEED
+
     snake  = Snake()
     food   = Food()
 
-    SNAKE_SPEED = 30.0
     counter = 0
 
     level = 1
 
-    while not theEnd:
+    while not THE_END:
 
-          print_there(0, 25, 80*ERASE)
-          print_there(0, 25, "Level: %d      Points: %d" %(level, len(snake.body)-1))
+          print_there(0, Y2+2, 80*ERASE)
+          print_there(0, Y2+2, "Level: %d      Points: %d" %(level, len(snake.body)-1))
 
           snake.move()
 
@@ -164,7 +165,7 @@ def realtime(theEnd=False):
              snake.grow()
 
           if snake.hitTheWall():
-             theEnd = True
+             THE_END = True
 
           counter += 1
           if counter > 30:
@@ -174,12 +175,12 @@ def realtime(theEnd=False):
 
           char = screen.getch()
           if (char == ord('q')):
-             theEnd = True
+             THE_END = True
           elif char in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
              snake.process_event(char)
 
           #sleep(0.1)
-          sleep(FPS / (SNAKE_SPEED * 10))
+          sleep(FPS / (SNAKE_SPEED * 10.0))
 
           if (len(snake.body) > END_LEVEL):
              msg = "N  E  W     L  E  V  E  L"
@@ -220,36 +221,6 @@ curses.cbreak()
 #
 # map arrow keys to special values
 screen.keypad(True)
-#
-#
-RIGHT = curses.KEY_RIGHT
-LEFT  = curses.KEY_LEFT
-UP    = curses.KEY_UP
-DOWN  = curses.KEY_DOWN
-ESC   = curses.KEY_EXIT
-#
-HEAD  = "S"
-BODY  = "s"
-FOOD  = "*"
-ERASE = " "
-#
-FOOD_LIMIT = 4
-FOOD_TIME  = 9
-END_LEVEL  = 30
-#
-RATE  = 5.0
-FPS   = 30.0
-#
-global theEnd
-theEnd = False
-#
-X1 = 0
-Y1 = 0
-X2 = 80
-Y2 = 23
-#
-startX = 10
-startY = 10
 #
 # DRAW FIELD
 #
