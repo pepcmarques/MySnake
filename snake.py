@@ -14,11 +14,6 @@ def print_there(x, y, text):
      sys.stdout.flush()
 
 
-def endGame():
-    global THE_END
-    THE_END = not THE_END
-
-
 class Position(object):
     def __init__(self, x, y):
         super(Position, self).__init__()
@@ -127,13 +122,26 @@ class Snake(object):
     def hitTheWall(self):
         head = self.body[0]
         if ((head.x == X1+1) or (head.x == X2) or (head.y == Y1+1) or (head.y == Y2+1)):
-           sleep(1)
            return True
         return False
 
+    def hitItself(self):
+        if len(self.body) == 1:
+           return False
+        head = self.body[0]
+        for s in self.body[1:]:
+            if ((head.x == s.x) and (head.y == s.y)):
+               return True
+        return False
+
     def process_event(self, e):
-        firstPart = self.body[0]
-        self.moveHere.append(PositionSnake(firstPart.x, firstPart.y, e))
+        head = self.body[0]
+        if len(self.body) > 1:
+           if ((head.direction == RIGHT) and (e == LEFT)) or ((head.direction == LEFT)  and (e == RIGHT)) or \
+              ((head.direction == UP)    and (e == DOWN)) or ((head.direction == DOWN)  and (e == UP)):
+              return False
+        self.moveHere.append(PositionSnake(head.x, head.y, e))
+        return True
 
     def eraseAll(self):
         for s in self.body:
@@ -161,6 +169,10 @@ def realtime(THE_END=False):
     snake  = Snake()
     food   = Food()
 
+    # for testing
+    for i in range(20):
+        snake.grow()
+
     counter = 0
 
     level = 1
@@ -180,6 +192,9 @@ def realtime(THE_END=False):
           if snake.hitTheWall():
              THE_END = True
 
+          if snake.hitItself():
+             THE_END = True
+
           counter += 1
           if counter > 30:
              counter = 0
@@ -190,7 +205,8 @@ def realtime(THE_END=False):
           if (char == ord('q')):
              THE_END = True
           elif char in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
-             snake.process_event(char)
+             if not snake.process_event(char):
+                THE_END = True
 
           #sleep(0.1)
           sleep(FPS / (SNAKE_SPEED * 10.0))
@@ -206,6 +222,9 @@ def realtime(THE_END=False):
              SNAKE_SPEED = SNAKE_SPEED + RATE
              level += 1
 
+    msg = "G   A   M   E     O   V   E   R"
+    print_there(int((X2 - X1)/ 2) - int(len(msg))/2,int((Y2 - Y1)/2), msg)
+    sleep(3)
     # shut down cleanly
     curses.nocbreak()
     screen.keypad(0)
