@@ -1,5 +1,17 @@
 #!/bin/env python
 
+##################################
+__author__ = "Paulo Marques"
+__copyright__ = ""
+__credits__ = ["Paulo Marques"]
+               
+__license__ = "GPL"
+__version__ = "0.0"
+__maintainer__ = "Paulo Marques"
+__email__ = ""
+__status__ = "Production"
+##################################
+
 import curses
 import os
 import sys
